@@ -1,4 +1,4 @@
-package com.devansh.security;
+package com.devansh.request;
 
 public class AuthenticationRequest {
 

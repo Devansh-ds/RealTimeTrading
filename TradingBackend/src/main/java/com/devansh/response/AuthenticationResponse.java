@@ -1,5 +1,8 @@
-package com.devansh.security;
+package com.devansh.response;
 
+import lombok.Builder;
+
+@Builder
 public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;

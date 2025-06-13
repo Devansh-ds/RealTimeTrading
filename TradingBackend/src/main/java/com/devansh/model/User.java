@@ -34,13 +34,13 @@ public class User implements UserDetails {
 
     private String profilePicture;
 
-    @Column(name = "email_verified", nullable = false)
+    @Column(name = "email_verified")
     private boolean isEmailVerified;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "is_active")
     private boolean isActive;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)

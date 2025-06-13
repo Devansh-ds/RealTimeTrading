@@ -1,14 +1,18 @@
 package com.devansh.security;
 
+import com.devansh.exception.TokenInvalidException;
 import com.devansh.exception.UserAlreadyExistException;
 import com.devansh.exception.UserException;
 import com.devansh.model.Role;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.devansh.request.AuthenticationRequest;
+import com.devansh.request.OtpVerificationRequest;
+import com.devansh.request.RegisterRequest;
+import com.devansh.response.AuthenticationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,16 +25,16 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity register(
             @RequestBody RegisterRequest request) throws UserAlreadyExistException {
         request.setRole(Role.USER);
-        return ResponseEntity.ok(authenticationService.register(request));
+        return authenticationService.register(request);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> register(
+    public ResponseEntity register(
             @RequestBody AuthenticationRequest request) throws UserException {
-        return ResponseEntity.ok(authenticationService.authenticate(request));
+        return authenticationService.authenticate(request);
 
     }
 
@@ -39,6 +43,12 @@ public class AuthenticationController {
             throws IOException, TokenInvalidException {
         return ResponseEntity.ok(authenticationService.refreshToken(refreshToken));
     }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity otpVerificationHandler(@RequestBody OtpVerificationRequest request) throws ExecutionException {
+        return authenticationService.verifyOtp(request);
+    }
+
 
 
 }
