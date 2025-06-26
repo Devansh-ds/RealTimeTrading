@@ -1,6 +1,7 @@
 package com.devansh.exception;
 
 import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 

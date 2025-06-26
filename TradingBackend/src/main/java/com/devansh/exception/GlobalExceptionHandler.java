@@ -36,4 +36,37 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ValidationErrorResponse(errors));
     }
 
+    @ExceptionHandler(OtpException.class)
+    public ResponseEntity<ErrorResponse> handleOtpException(OtpException e, WebRequest request) {
+        ErrorResponse response = ErrorResponse
+                .builder()
+                .errorMessage(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .endpoint(request.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(TokenInvalidException.class)
+    public ResponseEntity<ErrorResponse> handleTokenInvalidException(TokenInvalidException e, WebRequest request) {
+        ErrorResponse response = ErrorResponse
+                .builder()
+                .errorMessage(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .endpoint(request.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<ErrorResponse> handleUserException(UserAlreadyExistException e, WebRequest request) {
+        ErrorResponse response = ErrorResponse
+                .builder()
+                .errorMessage(e.getMessage())
+                .timestamp(LocalDateTime.now())
+                .endpoint(request.getDescription(false).replace("uri=", ""))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
 }

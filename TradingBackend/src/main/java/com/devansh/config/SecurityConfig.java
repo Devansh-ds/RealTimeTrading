@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 .requestMatchers("/auth/**")
                                 .permitAll()
 
-                                .requestMatchers("/test/user/**").hasRole(Role.USER.name())
+                                .requestMatchers("/withdrawal/admin/all").hasRole(Role.ADMIN.name())
+                                .requestMatchers("/withdrawal/admin").hasRole(Role.ADMIN.name())
 
                                 .anyRequest()
                                 .authenticated()

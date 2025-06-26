@@ -1,8 +1,8 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -42,3 +42,11 @@ two:
     auth:
       otp:
         expiration-minutes: 5
+
+stripe:
+  api:
+    key:
+razorpay:
+  api:
+    key: rzp_test_uKyFZSf9BCqd3N
+    secret: FOiuVGJFGCkk3LWfHqCvAPvp

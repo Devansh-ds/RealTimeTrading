@@ -1,21 +1,16 @@
 package com.devansh.security;
 
 import com.devansh.config.JwtService;
+import com.devansh.exception.OtpException;
 import com.devansh.exception.TokenInvalidException;
 import com.devansh.exception.UserAlreadyExistException;
 import com.devansh.exception.UserException;
 import com.devansh.model.Role;
 import com.devansh.model.User;
-import com.devansh.repo.TokenRepository;
 import com.devansh.repo.UserRepository;
-import com.devansh.request.AuthenticationRequest;
-import com.devansh.request.OtpContext;
-import com.devansh.request.OtpVerificationRequest;
-import com.devansh.request.RegisterRequest;
+import com.devansh.request.*;
 import com.devansh.response.AuthenticationResponse;
 import com.devansh.service.EmailService;
-import com.devansh.token.Token;
-import com.devansh.token.TokenType;
 import com.google.common.cache.LoadingCache;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +20,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -42,7 +36,6 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final TokenRepository tokenRepository;
     private final LoadingCache oneTimePasswordCache;
     private final EmailService emailService;
 
@@ -74,7 +67,6 @@ public class AuthenticationService {
     }
 
     private void sendOtp(User savedUser, String subject) {
-//        oneTimePasswordCache.invalidate(savedUser.getEmail());
         final var otp = new Random().ints(1, 100000, 999999).sum();
 
         // cache user details + otp
@@ -87,7 +79,7 @@ public class AuthenticationService {
 
         oneTimePasswordCache.put(savedUser.getEmail(), data);
 
-        System.out.println("Otp sent :: " + otp);
+        System.out.println("OtpException sent :: " + otp);
 
         CompletableFuture.supplyAsync(() -> {
             emailService.sendEmail(savedUser.getEmail(), subject, "OTP: " + otp);
@@ -97,14 +89,15 @@ public class AuthenticationService {
         });
     }
 
-    public ResponseEntity verifyOtp(final OtpVerificationRequest otpVerificationRequestDto) throws ExecutionException {
+    public ResponseEntity verifyOtp(final OtpVerificationRequest otpVerificationRequestDto) throws ExecutionException, OtpException {
         Object cached = oneTimePasswordCache.get(otpVerificationRequestDto.getEmailId());
         if (cached instanceof Map) {
             Map<String, Object> data = (Map<String, Object>) cached;
             int otp = (Integer) data.get("otp");
 
             if (otp != otpVerificationRequestDto.getOneTimePassword()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid otp");
+                System.out.println("Invalid otp: " + otp);
+                throw new OtpException("Invalid OTP");
             }
 
             if (otpVerificationRequestDto.getContext().equals(OtpContext.SIGN_UP)) {
@@ -134,7 +127,7 @@ public class AuthenticationService {
             } else if (otpVerificationRequestDto.getContext().equals(OtpContext.LOGIN)) {
                 User loginUser = userRepository
                         .findByEmail(otpVerificationRequestDto.getEmailId())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found with id: " + otpVerificationRequestDto.getEmailId()));
+                        .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + otpVerificationRequestDto.getEmailId()));
 
                 String accessToken = jwtService.generateToken(loginUser);
                 String refreshToken = jwtService.generateRefreshToken(loginUser);
@@ -144,52 +137,20 @@ public class AuthenticationService {
                                 .accessToken(accessToken)
                                 .refreshToken(refreshToken)
                                 .build());
+            } else if (otpVerificationRequestDto.getContext().equals(OtpContext.RESET_PASSWORD)) {
+                User user = userRepository
+                        .findByEmail(otpVerificationRequestDto.getEmailId())
+                        .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + otpVerificationRequestDto.getEmailId() ));
+
+                user.setPassword(passwordEncoder.encode(otpVerificationRequestDto.getNewPassword()));
+                userRepository.save(user);
+                return ResponseEntity.ok("Password resets successfully");
             } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP-Context not supported");
+                throw new OtpException("OTP CONTEXT not supported");
             }
         } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, otpVerificationRequestDto.getEmailId() + " does not have a valid otp");
+            throw new OtpException(otpVerificationRequestDto.getEmailId() + " does not have a valid otp");
         }
-//        Integer storedOneTimePassword = null;
-//        try {
-//            storedOneTimePassword = (Integer) oneTimePasswordCache.get(user.getEmail());
-//        } catch (ExecutionException e) {
-//            System.out.println("FAILED TO FETCH PAIR FROM OTP CACHE: " + e);
-//            throw new ResponseStatusException(HttpStatus.NOT_IMPLEMENTED);
-//        }
-
-//        if (storedOneTimePassword.equals(otpVerificationRequestDto.getOneTimePassword())) {
-//
-//            if (otpVerificationRequestDto.getContext().equals(OtpContext.SIGN_UP)) {
-//
-//                user.setEmailVerified(true);
-//                user = userRepository.save(user);
-//
-//                String accessToken = jwtService.generateToken(user);
-//                String refreshToken = jwtService.generateRefreshToken(user);
-//
-//                return ResponseEntity
-//                        .ok(AuthenticationResponse.builder().accessToken(accessToken)
-//                                .refreshToken(refreshToken).build());
-//
-//            } else if (otpVerificationRequestDto.getContext().equals(OtpContext.LOGIN)) {
-//
-//                String accessToken = jwtService.generateToken(user);
-//                String refreshToken = jwtService.generateRefreshToken(user);
-//
-//                return ResponseEntity
-//                        .ok(AuthenticationResponse.builder().accessToken(accessToken)
-//                                .refreshToken(refreshToken).build());
-//
-//            } else if (otpVerificationRequestDto.getContext().equals(OtpContext.ACCOUNT_DELETION)) {
-//                user.setActive(false);
-//                user = userRepository.save(user);
-//                return ResponseEntity.ok().build();
-//            }
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-//        } else {
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-//        }
     }
 
 
@@ -205,23 +166,21 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UserException(request.getEmail() + " does not exist"));
 
         if (!user.isActive()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Account not active");
+            throw new UserException(request.getEmail() + " is not active");
         }
 
-        sendOtp(user, "2FA: Request to log in to your account");
-        return ResponseEntity.ok(getOtpSendMessage());
-    }
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
 
-//    private void saveUserToken(User savedUser, String jwtToken) {
-//        var token = new Token(
-//                jwtToken,
-//                TokenType.BEARER,
-//                false,
-//                false,
-//                savedUser
-//        );
-//        tokenRepository.save(token);
-//    }
+        return ResponseEntity
+                .ok(AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
+
+//        sendOtp(user, "2FA: Request to log in to your account");
+//        return ResponseEntity.ok(getOtpSendMessage());
+    }
 
     public AuthenticationResponse refreshToken(String refreshToken) throws TokenInvalidException {
 
@@ -248,6 +207,14 @@ public class AuthenticationService {
             throw new TokenInvalidException("Weird refresh token");
         }
 
+    }
+
+    public ResponseEntity resetPassword(ResetPasswordRequest request) throws UserException {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new UserException("User does not exist with email: " + request.email()));
+
+        sendOtp(user, "Reset Password");
+        return ResponseEntity.ok(getOtpSendMessage());
     }
 }
 

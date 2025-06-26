@@ -1,5 +1,6 @@
 package com.devansh.security;
 
+import com.devansh.exception.OtpException;
 import com.devansh.exception.TokenInvalidException;
 import com.devansh.exception.UserAlreadyExistException;
 import com.devansh.exception.UserException;
@@ -7,6 +8,7 @@ import com.devansh.model.Role;
 import com.devansh.request.AuthenticationRequest;
 import com.devansh.request.OtpVerificationRequest;
 import com.devansh.request.RegisterRequest;
+import com.devansh.request.ResetPasswordRequest;
 import com.devansh.response.AuthenticationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +29,9 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity register(
             @RequestBody RegisterRequest request) throws UserAlreadyExistException {
-        request.setRole(Role.USER);
+        if (request.getRole() == null) {
+            request.setRole(Role.USER);
+        }
         return authenticationService.register(request);
     }
 
@@ -45,9 +49,15 @@ public class AuthenticationController {
     }
 
     @PostMapping("/verify-otp")
-    public ResponseEntity otpVerificationHandler(@RequestBody OtpVerificationRequest request) throws ExecutionException {
+    public ResponseEntity otpVerificationHandler(@RequestBody OtpVerificationRequest request) throws ExecutionException, OtpException {
         return authenticationService.verifyOtp(request);
     }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity resetPasswordHandler(@RequestBody ResetPasswordRequest request) throws UserException {
+        return authenticationService.resetPassword(request);
+    }
+
 
 
 

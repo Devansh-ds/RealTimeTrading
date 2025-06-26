@@ -93,6 +93,17 @@
 			<artifactId>guava</artifactId>
 			<version>33.3.1-jre</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.razorpay</groupId>
+			<artifactId>razorpay-java</artifactId>
+			<version>1.4.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>28.3.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>

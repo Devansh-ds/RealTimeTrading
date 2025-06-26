@@ -9,4 +9,5 @@ public class OtpVerificationRequest {
     private String emailId;
     private Integer oneTimePassword;
     private OtpContext context;
+    private String newPassword;
 }
