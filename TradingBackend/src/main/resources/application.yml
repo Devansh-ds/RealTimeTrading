@@ -9,15 +9,15 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: <your-password>
+    password: Devansh2005@#
     url: jdbc:mysql://localhost:3306/trading
   output:
     ansi:
       enabled: always
   mail:
     host: smtp.gmail.com
-    username: <email id>
-    password: <application-password>
+    username: Devanshsingla9@gmail.com
+    password: fmxa pbtd clsf gacm
     port: 587
     properties:
       mail:
@@ -45,7 +45,7 @@ two:
 
 stripe:
   api:
-    key:
+    key: 3425425209
 razorpay:
   api:
     key: rzp_test_uKyFZSf9BCqd3N

@@ -5,10 +5,7 @@ import com.devansh.exception.TokenInvalidException;
 import com.devansh.exception.UserAlreadyExistException;
 import com.devansh.exception.UserException;
 import com.devansh.model.Role;
-import com.devansh.request.AuthenticationRequest;
-import com.devansh.request.OtpVerificationRequest;
-import com.devansh.request.RegisterRequest;
-import com.devansh.request.ResetPasswordRequest;
+import com.devansh.request.*;
 import com.devansh.response.AuthenticationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +53,11 @@ public class AuthenticationController {
     @PutMapping("/reset-password")
     public ResponseEntity resetPasswordHandler(@RequestBody ResetPasswordRequest request) throws UserException {
         return authenticationService.resetPassword(request);
+    }
+
+    @PutMapping("/enable-2-fact-auth")
+    public ResponseEntity enableTwoFactorAuth(@RequestBody EnableTwoFactAuthRequest request) throws UserException {
+        return authenticationService.enable2FactAuth(request);
     }
 
 

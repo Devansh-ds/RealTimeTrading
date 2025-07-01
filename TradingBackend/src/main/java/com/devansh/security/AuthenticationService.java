@@ -108,7 +108,7 @@ public class AuthenticationService {
                         .role((Role) data.get("role"))
                         .createdAt(LocalDateTime.now())
                         .isActive(true)
-                        .isEmailVerified(true)
+                        .isEmailVerified(false)
                         .build();
                 user = userRepository.save(user);
 
@@ -145,6 +145,13 @@ public class AuthenticationService {
                 user.setPassword(passwordEncoder.encode(otpVerificationRequestDto.getNewPassword()));
                 userRepository.save(user);
                 return ResponseEntity.ok("Password resets successfully");
+            } else if (otpVerificationRequestDto.getContext().equals(OtpContext.ENABLE_TWO_FACTOR_AUTH)) {
+                User user = userRepository
+                        .findByEmail(otpVerificationRequestDto.getEmailId())
+                        .orElseThrow(() -> new UsernameNotFoundException("Email not found: " + otpVerificationRequestDto.getEmailId() ));
+                user.setEmailVerified(true);
+                userRepository.save(user);
+                return ResponseEntity.ok("Two factor auth enabled successfully");
             } else {
                 throw new OtpException("OTP CONTEXT not supported");
             }
@@ -169,17 +176,19 @@ public class AuthenticationService {
             throw new UserException(request.getEmail() + " is not active");
         }
 
-        String accessToken = jwtService.generateToken(user);
-        String refreshToken = jwtService.generateRefreshToken(user);
+        if (!user.isEmailVerified()) {
+            String accessToken = jwtService.generateToken(user);
+            String refreshToken = jwtService.generateRefreshToken(user);
 
-        return ResponseEntity
-                .ok(AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build());
-
-//        sendOtp(user, "2FA: Request to log in to your account");
-//        return ResponseEntity.ok(getOtpSendMessage());
+            return ResponseEntity
+                    .ok(AuthenticationResponse.builder()
+                            .accessToken(accessToken)
+                            .refreshToken(refreshToken)
+                            .build());
+        } else {
+            sendOtp(user, "2FA: Request to log in to your account");
+            return ResponseEntity.ok(getOtpSendMessage());
+        }
     }
 
     public AuthenticationResponse refreshToken(String refreshToken) throws TokenInvalidException {
@@ -214,6 +223,15 @@ public class AuthenticationService {
                 .orElseThrow(() -> new UserException("User does not exist with email: " + request.email()));
 
         sendOtp(user, "Reset Password");
+        return ResponseEntity.ok(getOtpSendMessage());
+    }
+
+    public ResponseEntity enable2FactAuth(EnableTwoFactAuthRequest request) throws UserException {
+        User user = userRepository
+                .findByEmail(request.email())
+                .orElseThrow(() -> new UserException("email does not exist. Create a new account."));
+
+        sendOtp(user, "Enable Two Fact Auth");
         return ResponseEntity.ok(getOtpSendMessage());
     }
 }
