@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../../components/button";
 import AssetTable from "./AssetTable";
 import StockChart from "./StockChart";
@@ -42,17 +42,17 @@ const Home = () => {
             <Button variant={category == "all" ? "default" : "outline"} className="rounded-full" onClick={() => handleCategory("all")}>
               All
             </Button>
-            <Button variant={category == "top50" ? "default" : "outline"} className="rounded-full" onClick={() => handleCategory("top50")}>
-              Top 50
-            </Button>
             <Button variant={category == "topGainers" ? "default" : "outline"} className="rounded-full" onClick={() => handleCategory("topGainers")}>
               Top Gainers
             </Button>
             <Button variant={category == "topLosers" ? "default" : "outline"} className="rounded-full" onClick={() => handleCategory("topLosers")}>
               Top Losers
             </Button>
+            <Button variant={category == "top50" ? "default" : "outline"} className="rounded-full" onClick={() => handleCategory("top50")}>
+              Top 50
+            </Button>
           </div>
-          <AssetTable />
+          <AssetTable category={category} />
         </div>
         {/* right part to show the chart */}
         <div className="lg:block lg:w-[50%]">

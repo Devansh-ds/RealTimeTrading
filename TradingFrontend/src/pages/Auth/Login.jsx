@@ -1,20 +1,24 @@
 import React from "react";
 import { useState } from "react";
 import { Button } from "../../components/button";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../state/Auth/Action.js";
 
 const Login = () => {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
+  const auth = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = () => {
-    console.log("handle submit");
-    console.log(form);
+    console.log("sending login request form");
+    dispatch(login(form));
   };
 
   return (
@@ -29,6 +33,7 @@ const Login = () => {
           placeholder="user@gmail.com"
           className="border p-3 px-5 rounded-md w-full"
         />
+        {auth?.login?.error && <p className="text-red-600 text-center">Email or password is incorrect</p>}
       </div>
       <div className="flex flex-col gap-2 w-full">
         <p className="text-lg">Password</p>

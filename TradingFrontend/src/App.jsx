@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import Navbar from "./pages/Home/Navbar/Navbar";
 import Portfolio from "./pages/Portfolio/Portfolio";
@@ -12,13 +12,17 @@ import SearchCoin from "./pages/SearchCoin/SearchCoin";
 import NotFound from "./pages/NotFound/NotFound";
 import Activity from "./pages/Activity/Activity";
 import Auth from "./pages/Auth/Auth";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
 
 function App() {
+  const auth = useSelector((store) => store.auth);
+  const isLoggedIn = auth.token != null;
+  const navigate = useNavigate();
 
   return (
     <>
-      <Auth />
-      {false && (
+      {auth.token == null? <Auth /> : 
         <div>
           <Navbar />
           <Routes>
@@ -35,7 +39,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
-      )}
+      }
     </>
   );
 }
