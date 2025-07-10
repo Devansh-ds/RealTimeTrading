@@ -23,4 +23,6 @@ public interface CoinRepository extends JpaRepository<Coin, String> {
             Pageable pageable
     );
 
+    @Query("select count(*) from Coin")
+    Integer getTotalCount();
 }

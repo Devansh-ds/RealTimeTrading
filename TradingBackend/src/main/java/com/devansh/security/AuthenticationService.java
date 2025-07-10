@@ -56,8 +56,16 @@ public class AuthenticationService {
             throw new UserAlreadyExistException("Email already in use: " + request.getEmail());
         }
 
-        sendOtp(user, "Verify your account");
-        return ResponseEntity.ok(getOtpSendMessage());
+        userRepository.save(user);
+
+        String accessToken = jwtService.generateToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return ResponseEntity
+                .ok(AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build());
     }
 
     private Map getOtpSendMessage() {

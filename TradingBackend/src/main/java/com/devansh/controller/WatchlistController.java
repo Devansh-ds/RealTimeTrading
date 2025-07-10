@@ -30,7 +30,7 @@ public class WatchlistController {
         return ResponseEntity.ok(watchlistService.findById(watchlistId));
     }
 
-    @PatchMapping("/add/coin/{coinId}")
+    @PutMapping("/add/coin/{coinId}")
     public ResponseEntity<WatchList> addItemToWatchlist(@PathVariable("coinId") String coinId,
                                                    @RequestHeader("Authorization") String token) throws UserException, CoinException {
         User user = userService.findByJwtToken(token);

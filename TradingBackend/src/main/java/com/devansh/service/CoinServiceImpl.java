@@ -52,6 +52,11 @@ public class CoinServiceImpl implements CoinService {
         return coinRepository.filterCoins(name, symbol, minPrice, maxPrice, pageable);
     }
 
+    @Override
+    public Integer getTotalCoins() {
+        return coinRepository.getTotalCount();
+    }
+
     @Scheduled(fixedRate = 1000*60*40)
     public void syncCoinList() throws HttpException {
         String url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd";

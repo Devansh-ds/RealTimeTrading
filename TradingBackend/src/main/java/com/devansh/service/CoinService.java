@@ -15,4 +15,6 @@ public interface CoinService {
     String getTopCoinsByMarketCapRank() throws HttpException;
     String getTradingCoins() throws HttpException;
     List<Coin> getFilteredCoins(String name, String symbol, Double minPrice, Double maxPrice, Pageable pageable);
+
+    Integer getTotalCoins();
 }

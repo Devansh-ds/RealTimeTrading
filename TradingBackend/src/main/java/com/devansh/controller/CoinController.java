@@ -31,13 +31,18 @@ public class CoinController {
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "marketCap,desc") String sort
+            @RequestParam(defaultValue = "marketCap,desc", required = false) String sort
     ) {
         String[] sortParams = sort.split(",");
         Sort sortObj = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
         Pageable pageable = PageRequest.of(page, size, sortObj);
 
         return coinService.getFilteredCoins(name, symbol, minPrice, maxPrice, pageable);
+    }
+
+    @GetMapping("/totalCoins")
+    public ResponseEntity<Integer> getTotalCoins() {
+        return ResponseEntity.ok(coinService.getTotalCoins());
     }
 
     @GetMapping("/{coinId}/chart")
