@@ -1,3 +1,4 @@
+import { ADD_MONEY } from "../Money/ActionType";
 import {
   REGISTER_SUCCESS,
   LOGIN_SUCCESS,
@@ -9,7 +10,8 @@ import {
   VERIFY_RESET_PASSWORD_OTP_SUCCESS,
   LOGOUT,
   REGISTER_FAILURE,
-  LOGIN_FAILURE
+  LOGIN_FAILURE,
+  GET_WALLET
 } from "./ActionType";
 
 const initialValue = {
@@ -18,8 +20,8 @@ const initialValue = {
   login2step: null,
   reqUser: null,
   otp: null,
-  logout: null,
-  token:localStorage.getItem("authToken") || null
+  token:localStorage.getItem("authToken") || null,
+  userWallet: null
 };
 
 export const authReducer = (store = initialValue, { type, payload }) => {
@@ -41,7 +43,9 @@ export const authReducer = (store = initialValue, { type, payload }) => {
     return { ...store, otp: payload };
   } else if (type == LOGOUT) {
     localStorage.removeItem("authToken")
-    return { ...store, logout: payload, token: null };
+    return { ...store, token: null };
+  } else if (type == GET_WALLET || type == ADD_MONEY) {
+    return {...store, userWallet: payload}
   }
   return store;
 };

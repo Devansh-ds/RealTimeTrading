@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/card";
 import { DollarSign, DownloadIcon, ShuffleIcon, UploadIcon, WalletIcon } from "lucide-react";
 import { CopyIcon, ReloadIcon, UpdateIcon } from "@radix-ui/react-icons";
@@ -7,8 +7,24 @@ import TopUpForm from "./TopUpForm";
 import WithdrawalForm from "./WithdrawalForm";
 import TransferForm from "./TransferForm";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
+import { useDispatch, useSelector } from "react-redux";
+import { getWallet } from "../../state/Auth/Action";
+import { assetHistory } from "../../state/Asset/Action";
 
 const Wallet = () => {
+  const dispatch = useDispatch();
+  const auth = useSelector((store) => store.auth);
+  const withdrawals = useSelector((store) => store.withdrawals);
+  const assets = useSelector((store) => store.assets);
+
+  useEffect(() => {
+    dispatch(getWallet({ token: auth.token }));
+  }, [auth.token, withdrawals.currentWithdrawal]);
+
+  useEffect(() => {
+    dispatch(assetHistory({token: auth.token}))
+  }, [auth.token, assets.buyAsset, assets.sellAsset])
+
   return (
     <div className="flex flex-col items-center mx-20">
       <div className="pt-10 w-full lg:w-[60%]">
@@ -33,7 +49,7 @@ const Wallet = () => {
           <CardContent>
             <div className="flex items-center">
               <DollarSign className="mt-1" />
-              <span className="text-2xl font-semibold">2340</span>
+              <span className="text-2xl font-semibold">{auth.userWallet?.balance}</span>
             </div>
             <div className="flex gap-7 mt-5">
               <Dialog>
@@ -89,7 +105,7 @@ const Wallet = () => {
           </div>
 
           <div className="space-y-5">
-            {[1, 1, 1, 1, 1, 1, 1, 1].map((item, index) => (
+            {assets?.assetHistory?.map((item, index) => (
               <div key={index}>
                 <Card className="bg-transparent px-5 flex flex-row justify-between items-center">
                   {/* left part of order type and date with logo */}
@@ -103,13 +119,13 @@ const Wallet = () => {
                     </div>
 
                     <div className="space-y-1">
-                      <h1>Buy Asset</h1>
-                      <p className="text-sm text-gray-500">2025-04-15</p>
+                      <h1>{item.orderType} Asset</h1>
+                      <p className="text-sm text-gray-500">{item.timeStamp.split("T")[0]}</p>
                     </div>
                   </div>
                   {/* right part shows amount */}
                   <div>
-                    <p className="text-green-500 text-xl">493 USD</p>
+                    <p className="text-green-500 text-xl">{item.price} USD</p>
                   </div>
                 </Card>
               </div>

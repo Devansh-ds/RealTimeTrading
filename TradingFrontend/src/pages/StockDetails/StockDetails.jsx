@@ -6,17 +6,21 @@ import { BookmarkIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../../components/dialog";
 import TradingForm from "./TradingForm";
 import StockChart from "../Home/StockChart";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getCoinById } from "../../state/Coin/Action.js";
+import { addRemoveCoinWatchlist } from "../../state/Watchlist/Action.js";
 
 const StockDetails = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const dispatch = useDispatch();
   const auth = useSelector((store) => store.auth);
   const currCoin = useSelector((store) => store.allCoins.currCoin);
+  const watchlist = useSelector((store) => store.userWatchlist);
+  const navigate = useNavigate();
 
   const changeBookmark = () => {
+    dispatch(addRemoveCoinWatchlist({ coinId: currCoin.id, token: auth.token }));
     setIsBookmarked((prev) => !prev);
   };
 
@@ -25,9 +29,10 @@ const StockDetails = () => {
   useEffect(() => {
     console.log("id: ", id);
     dispatch(getCoinById({ id, token: auth.token }));
-  }, [id]);
 
-  console.log(currCoin);
+    const foundCoin = watchlist?.coins?.find((coin) => coin.id === id);
+    setIsBookmarked(foundCoin != null);
+  }, [id]);
 
   return (
     <div className="p-5 mt-5 space-y-6">
@@ -48,7 +53,7 @@ const StockDetails = () => {
             <div className="flex items-end gap-2">
               <p className="text-xl font-bold">${currCoin?.market_data.current_price.usd}</p>
               <p>
-                <span className={currCoin?.market_data.price_change_24h_in_currency.usd < 0? "text-red-500" : "text-green-500"}>
+                <span className={currCoin?.market_data.price_change_24h_in_currency.usd < 0 ? "text-red-500" : "text-green-500"}>
                   <span>{currCoin?.market_data.price_change_24h_in_currency.usd}</span>
                   <span>({currCoin?.market_data.price_change_percentage_24h_in_currency.usd}%)</span>
                 </span>
@@ -67,7 +72,7 @@ const StockDetails = () => {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>How much do you want to spend?</DialogTitle>
+                <DialogTitle className="text-center">How much do you want to buy/sell?</DialogTitle>
               </DialogHeader>
               <TradingForm />
             </DialogContent>

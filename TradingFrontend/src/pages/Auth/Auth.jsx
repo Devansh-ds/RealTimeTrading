@@ -16,7 +16,7 @@ const Auth = () => {
       <div className="absolute top-0 right-0 left-0 bottom-0 bg-[#030712]/50 z-0" />
 
       {/* Content layer */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-start items-start h-[35rem] w-[full] rounded-md z-10 bg-black/50 shadow-2xl shadow-white bgBlure sm:w-[60%]">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-start items-start h-[35rem] w-[full] rounded-md z-10 bg-black/50 shadow-2xl shadow-white bgBlure sm:w-[60%] lg:w-[40%]">
         <h1 className="text-6xl sm:text-2xl font-bold pb-9 mt-7 text-center text-white w-full mx-auto">A-Z Trading</h1>
         {location.pathname == "/signup" ? (
           <section className="w-full">

@@ -79,7 +79,7 @@ const Profile = () => {
                   </DialogContent>
                 </Dialog>
               </div>
-              <div className="w-[50%]">
+              <div className="w-[40%]">
                 Enable 2 step authentication easily by verifying otp through the email which keeps your account secure and safe.
               </div>
             </div>

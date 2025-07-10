@@ -5,10 +5,15 @@ import { DotFilledIcon } from "@radix-ui/react-icons";
 import { Label } from "../../components/label";
 import { Button } from "../../components/button";
 import { DialogClose } from "../../components/dialog";
+import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
+import { addMoney } from "../../state/Money/Action";
 
 const TopUpForm = () => {
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("RAZORPAY");
+  const dispatch = useDispatch();
+  const auth = useSelector((store) => store.auth);
 
   const handlePyamentMethodChange = (value) => {
     setPaymentMethod(value);
@@ -21,7 +26,7 @@ const TopUpForm = () => {
   };
 
   const handleSubmit = () => {
-    console.log(paymentMethod);
+    dispatch(addMoney({token: auth.token, money: amount}))
   };
 
   return (

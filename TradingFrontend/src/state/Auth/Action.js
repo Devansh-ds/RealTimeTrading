@@ -1,5 +1,5 @@
 import { baseUrl } from "../config";
-import { LOGIN_FAILURE, LOGIN_SUCCESS, REGISTER_FAILURE, REGISTER_SUCCESS } from "./ActionType";
+import { GET_WALLET, LOGIN_FAILURE, LOGIN_SUCCESS, REGISTER_FAILURE, REGISTER_SUCCESS } from "./ActionType";
 
 export const register = (data) => async (dispatch) => {
     try {
@@ -50,5 +50,23 @@ export const login = (data) => async (dispatch) => {
   } catch (error) {
     console.log("login (error): ", error);
     dispatch({ type: LOGIN_FAILURE, payload: error });
+  }
+};
+
+export const getWallet = (data) => async (dispatch) => {
+  try {
+    const res = await fetch(`${baseUrl}/wallet`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${data.token}`
+      }
+    });
+
+    const resData = await res.json();
+
+    console.log("get wallet: ", resData);
+    dispatch({ type: GET_WALLET, payload: resData });
+  } catch (error) {
+    console.log("get wallet (error): ", error);
   }
 };

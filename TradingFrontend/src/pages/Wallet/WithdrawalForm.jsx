@@ -1,10 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "../../components/input";
 import { Button } from "../../components/button";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { useDispatch, useSelector } from "react-redux";
+import { withdrawMoney } from "../../state/Money/Action.js";
+import { getWallet } from "../../state/Auth/Action";
 
 const WithdrawalForm = () => {
   const [amount, setAmount] = useState("");
+  const dispatch = useDispatch();
+
+  const auth = useSelector((store) => store.auth);
+  const withdrawals = useSelector((store) => store.withdrawals);
 
   const handleChange = (e) => {
     if (!isNaN(e.target.value)) {
@@ -12,15 +19,19 @@ const WithdrawalForm = () => {
     }
   };
 
+  useEffect(() => {
+    console.log(withdrawals.currentWithdrawal);
+  }, [withdrawals.currentWithdrawal]);
+
   const handleSubmit = () => {
-    console.log("submit wihtdraaw request");
+    dispatch(withdrawMoney({ token: auth.token, money: amount }));
   };
 
   return (
     <div className="pt-10 space-y-5">
       <div className="flex justify-between items-center rounded-md bg-amber-700 text-xl font-bold px-5 py-4">
         <p>Available balance</p>
-        <p>$4322</p>
+        <p>${auth.userWallet?.balance}</p>
       </div>
       <div className="flex flex-col items-center gap-1">
         <h1>Enter withdrawal amount</h1>

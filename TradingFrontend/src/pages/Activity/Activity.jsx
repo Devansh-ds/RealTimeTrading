@@ -3,8 +3,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from ".
 import { Avatar, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../../components/button";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
+import { useSelector } from "react-redux";
 
 const Activity = () => {
+  const assets = useSelector((store) => store.assets);
+
   return (
     <div className="lg:p-20 sm:p-8">
       <h1 className="font-bold text-3xl mb-6 text-amber-500">Trading History</h1>
@@ -21,23 +24,23 @@ const Activity = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {[1, 1, 1, 1, 1].map((item, index) => (
+          {assets?.assetHistory?.map((item, index) => (
             <TableRow key={index}>
               <TableCell>
-                <p>2024/05/31</p>
-                <p className="text-gray-400">12:39:15</p>
+                <p>{item.timeStamp.split("T")[0]}</p>
+                <p className="text-gray-400">{item.timeStamp.split("T")[1].split(".")[0]}</p>
               </TableCell>
               <TableCell className="font-medium flex items-center gap-2">
                 <Avatar className="-z-50">
-                  <AvatarImage className="size-10" src="https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400" />
+                  <AvatarImage className="size-10" src={item?.orderItem?.coin?.image} />
                 </Avatar>
-                <span>Bitcoin</span>
+                <span>{item?.orderItem?.coin?.name}</span>
               </TableCell>
-              <TableCell>$456.3422</TableCell>
-              <TableCell>$0</TableCell>
-              <TableCell>BUY</TableCell>
+              <TableCell>${item?.orderItem?.buyPrice}</TableCell>
+              <TableCell>${item?.orderItem?.sellPrice}</TableCell>
+              <TableCell>{item.orderType}</TableCell>
               <TableCell>-</TableCell>
-              <TableCell className="">$560</TableCell>
+              <TableCell className="">${item.price}</TableCell>
             </TableRow>
           ))}
         </TableBody>
